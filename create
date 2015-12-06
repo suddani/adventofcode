@@ -2,6 +2,8 @@
 require "pathname"
 require "open-uri"
 require 'net/http'
+require 'fileutils'
+require "uri"
 
 def createVersion(version)
   FileUtils.mkdir_p File.expand_path("day#{version}")
@@ -20,14 +22,14 @@ def readInput(version)
   open("day#{version}/input.txt", "r") do |file|
       input = file.read
   end
-  input
+  input.strip
 end
 
 def createHTML(version)
   template = readTemplate
-  input = readInput
-  template.gsub("{{INPUT_TEXT}}", input)
-  template.gsub("{{SOURCE_FILE}}", "day#{version}.js")
+  input = readInput(version)
+  template = template.gsub(/{{SOURCE_FILE}}/, "day#{version}.js")
+  template = template.gsub(/{{INPUT_TEXT}}/, input)
   open("day#{version}/index.html", "w") do |file|
       file.write(template)
   end
@@ -51,11 +53,26 @@ def downloadInput(version)
   end
   puts "done"
 end
+
+def createInput(version)
+  unless File.exist? "day#{version}/input.txt"
+    open("day#{version}/input.txt", "w") do |file|
+        file.write("Puzzles differ please download your own input!")
+    end
+  end
+end
+
+def writeInput(version, input)
+  open("day#{version}/input.txt", "w") do |file|
+      file.write(input)
+  end
+end
+
 if ARGV.length == 0
 else
   version = ARGV[0]
   createVersion(version)
-  downloadInput(version)
+  createInput(version)
   createHTML(version)
   createSource(version)
 end

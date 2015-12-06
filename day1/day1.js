@@ -9,7 +9,9 @@ function floor(dir) {
   }
   return f;
 }
-console.log("He is on floor: "+floor(document.body.innerText))
+s1 = "He is on floor: "+floor(getInput());
+console.log(s1)
+setSolution(1, s1);
 
 function enterbasement(dir) {
   var f = 0;
@@ -25,4 +27,6 @@ function enterbasement(dir) {
   return -1;
 }
 
-console.log("Enters basement after: "+enterbasement(document.body.innerText))
+s2 = "Enters basement after: "+enterbasement(getInput());
+console.log(s2)
+setSolution(2,s2)

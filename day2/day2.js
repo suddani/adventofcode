@@ -43,7 +43,7 @@ function Present(dim) {
 }
 
 function calcTotal(f, _input) {
-  var input = (_input||document.body.innerText).split("\n");
+  var input = (_input||getInput()).split("\n");
   var ammountNeeded = 0;
   for(var i in input) {
     var present = new Present(input[i]);
@@ -52,5 +52,5 @@ function calcTotal(f, _input) {
   return ammountNeeded;
 }
 
-console.log("Paper: "+calcTotal("totalNeeded"))
-console.log("Ribbon: "+calcTotal("calcRibbonNeeded"))
+setSolution(1, "Paper: "+calcTotal("totalNeeded"))
+setSolution(2, "Ribbon: "+calcTotal("calcRibbonNeeded"))

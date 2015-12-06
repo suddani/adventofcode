@@ -56,14 +56,14 @@ function Grid(dimmer) {
 
 function parseText(dimmer, str) {
   var grid = new Grid(dimmer);
-  var input = str||document.body.innerText.split("\n");
+  var input = str||getInput().split("\n");
   for (var i in input) {
     grid.parse(input[i]);
   }
   if (dimmer)
-    console.log("There total brithness is "+grid.lightsOn()+"");
+    setSolution(2, "There total brithness is "+grid.lightsOn()+"");
   else
-    console.log("There are "+grid.lightsOn()+" lights turned on");
+    setSolution(1, "There are "+grid.lightsOn()+" lights turned on");
 }
 
 function parseLine(dimmer, str) {

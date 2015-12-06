@@ -170,14 +170,14 @@ function Parser(_cfg) {
 
 function parseText(txt) {
   var parser = new Parser();
-  parser.parseText(txt||document.body.innerText);
-  console.log("There are "+parser.goodWords.length+" nice words");
+  parser.parseText(txt||getInput());
+  setSolution(1, "There are "+parser.goodWords.length+" nice words");
 }
 
 function parseText2(txt) {
   var parser = new Parser(new WordConfig2());
-  parser.parseText(txt||document.body.innerText);
-  console.log("There are "+parser.goodWords.length+" nice words");
+  parser.parseText(txt||getInput());
+  setSolution(2, "There are "+parser.goodWords.length+" nice words");
 }
 
 function parseWord(_word) {
@@ -191,6 +191,5 @@ function parseWord2(_word) {
   console.log("Word is: "+word.isGood());
   console.log(word);
 }
-setSolution(1, getInput());
 parseText();
 parseText2();

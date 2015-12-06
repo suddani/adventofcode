@@ -207,8 +207,8 @@ function minAdventCoin6(secret) {
 }
 
 //Call the functions with your secret key
-console.log("The number is: "+minAdventCoin("ckczppom"));
-console.log("The number is: "+minAdventCoin6("ckczppom"));
+setSolution(1, "The number is: "+minAdventCoin(getInput()));
+setSolution(2, "The number is: "+minAdventCoin6(getInput()));
 
 
 

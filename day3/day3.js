@@ -40,25 +40,25 @@ function Santa() {
 
 function deliver(_in) {
   var santa = new Santa();
-  var input = _in||document.body.innerText;
+  var input = _in||getInput();
   for (var i in input) {
     santa.move(input[i]);
   }
-  console.log("Santa visits: "+santa.homesVisited());
+  setSolution(1, "Santa visits: "+santa.homesVisited());
 }
 function deliverRobo(_in) {
   var santa = new Santa();
   var robosanta = new Santa();
   var santasturn = true;
 
-  var input = _in||document.body.innerText;
+  var input = _in||getInput();
   for (var i in input) {
     if (santasturn) santa.move(input[i]);
     else robosanta.move(input[i]);
     santasturn = !santasturn;
   }
 
-  console.log("Santa and RoboSanta visit: "+santa.homesVisited([robosanta.history]));
+  setSolution(2, "Santa and RoboSanta visit: "+santa.homesVisited([robosanta.history]));
 }
 
 deliver();
