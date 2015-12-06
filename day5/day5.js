@@ -191,5 +191,6 @@ function parseWord2(_word) {
   console.log("Word is: "+word.isGood());
   console.log(word);
 }
+setSolution(1, getInput());
 parseText();
 parseText2();

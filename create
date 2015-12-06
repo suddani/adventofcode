@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+require "pathname"
+require "open-uri"
+require 'net/http'
+
+def createVersion(version)
+  FileUtils.mkdir_p File.expand_path("day#{version}")
+end
+
+def readTemplate()
+  template = ""
+  open("shared/template.html", "r") do |file|
+      template = file.read
+  end
+  template
+end
+
+def readInput(version)
+  input = ""
+  open("day#{version}/input.txt", "r") do |file|
+      input = file.read
+  end
+  input
+end
+
+def createHTML(version)
+  template = readTemplate
+  input = readInput
+  template.gsub("{{INPUT_TEXT}}", input)
+  template.gsub("{{SOURCE_FILE}}", "day#{version}.js")
+  open("day#{version}/index.html", "w") do |file|
+      file.write(template)
+  end
+end
+
+def createSource(version)
+  unless File.exist? "day#{version}/day#{version}.js"
+    open("day#{version}/day#{version}.js", "w") do |file|
+    end
+  end
+end
+
+def downloadInput(version)
+  # http://adventofcode.com/day/5/input
+  puts "Downloading #{version}..."
+  Net::HTTP.start("adventofcode.com") do |http|
+    resp = http.get("/day/#{version}/input")
+    open("day#{version}/input.txt", "w") do |file|
+        file.write(resp.body)
+    end
+  end
+  puts "done"
+end
+if ARGV.length == 0
+else
+  version = ARGV[0]
+  createVersion(version)
+  downloadInput(version)
+  createHTML(version)
+  createSource(version)
+end
