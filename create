@@ -69,6 +69,8 @@ def writeInput(version, input)
 end
 
 if ARGV.length == 0
+  puts "Usage:\tcreate DAY\n\tRerun the command everytime you change the input file.\n\tFor example after you downloaded your input.\n\tIt will only override the index.html in the folder."
+  puts "Example:\n\tcreate 7"
 else
   version = ARGV[0]
   createVersion(version)
