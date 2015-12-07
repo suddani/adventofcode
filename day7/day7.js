@@ -19,23 +19,20 @@ function BASIC_COMMAND(name, regex, params, operation) {
   this.name = name;
   this.regex = regex;
   this.params = params;
+  this.do = operation;
   if (!"name" in this.params) alert("WRONG Command")
   if (!"val1" in this.params && !"val2" in this.params) alert("WRONG Command")
 
-  this.getVal1 = function (result) {
-    if ("val1" in this.params) return result[this.params.val1];
+  this.getVal = function (i, result) {
+    if (("val"+i) in this.params) return result[this.params["val"+i]];
     return null;
   }
-  this.getVal2 = function (result) {
-    if ("val2" in this.params) return result[this.params.val2];
-    return null;
-  }
+
   this.parse = function(line) {
     var result = line.match(this.regex)
-    if (result) return [result[this.params.name], new Input(this, this.getVal1(result), this.getVal2(result))];
+    if (result) return [result[this.params.name], new Input(this, this.getVal(1,result), this.getVal(2,result))];
     return null;
   }
-  this.do = operation;
 }
 
 function Circut() {
@@ -120,6 +117,6 @@ function parseText(_input) {
 }
 
 var _circut = parseText();
-setSolution(1, "3176 ?= "+_circut.getWireValue("a"))
+setSolution(1, "Solution[3176] ?= "+_circut.getWireValue("a"))
 _circut.parse(""+_circut.getWireValue("a")+" -> b");
-setSolution(2, "14710 ?= "+_circut.getWireValue("a"))
+setSolution(2, "Solution[14710] ?= "+_circut.getWireValue("a"))
