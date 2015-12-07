@@ -1,17 +1,5 @@
-// Operator	Usage	Description
-// Bitwise AND	a & b	Returns a one in each bit position for which the corresponding bits of both operands are ones.
-// Bitwise OR	a | b	Returns a one in each bit position for which the corresponding bits of either or both operands are ones.
-// Bitwise XOR	a ^ b	Returns a one in each bit position for which the corresponding bits of either but not both operands are ones.
-// Bitwise NOT	~ a	Inverts the bits of its operand.
-// Left shift	a << b	Shifts a in binary representation b (< 32) bits to the left, shifting in zeroes from the right.
-// Sign-propagating right shift	a >> b	Shifts a in binary representation b (< 32) bits to the right, discarding bits shifted off.
-// Zero-fill right shift	a >>> b	Shifts a in binary representation b (< 32) bits to the right, discarding bits shifted off, and shifting in zeroes from the left.
-
-
 function modulo(a, b) {
-  var m = a - Math.floor(a/b)*b;
-  //console.log("Modulo: "+m);
-  return m;
+  return a - Math.floor(a/b)*b;
 }
 function ToInteger(x) {
   x = Number(x);
@@ -21,91 +9,99 @@ function ToUint32(x) {
   return modulo(ToInteger(x), Math.pow(2, 32));
 }
 function ToUint16(x) {
-  return modulo((x), Math.pow(2, 16));
+  return modulo(x, Math.pow(2, 16));
 }
 function isInt(n) {
   return parseInt(n) === n;
 };
 
+function BASIC_COMMAND(name, regex, params, operation) {
+  this.name = name;
+  this.regex = regex;
+  this.params = params;
+  if (!"name" in this.params) alert("WRONG Command")
+  if (!"val1" in this.params && !"val2" in this.params) alert("WRONG Command")
+
+  this.getVal1 = function (result) {
+    if ("val1" in this.params) return result[this.params.val1];
+    return null;
+  }
+  this.getVal2 = function (result) {
+    if ("val2" in this.params) return result[this.params.val2];
+    return null;
+  }
+  this.parse = function(line) {
+    var result = line.match(this.regex)
+    if (result) return [result[this.params.name], new Input(this, this.getVal1(result), this.getVal2(result))];
+    return null;
+  }
+  this.do = operation;
+}
+
 function Circut() {
   this.wires = {};
   this.values = {};
+  this.commands = [
+    new BASIC_COMMAND("RSHIFT", /NOT (\w+) -> (\w+)/, {name:2,val1:1}, function(val){
+      return ToUint16(~val);
+    }),
+    new BASIC_COMMAND("OR", /(\w+) OR (\w+) -> (\w+)/, {name:3,val1:1,val2:2}, function(val1,val2){
+      return ToUint16(val1|val2);
+    }),
+    new BASIC_COMMAND("RSHIFT", /(\w+) RSHIFT (\w+) -> (\w+)/, {name:3,val1:1,val2:2}, function(val1,val2){
+      return ToUint16(val1>>val2);
+    }),
+    new BASIC_COMMAND("LSHIFT", /(\w+) LSHIFT (\w+) -> (\w+)/, {name:3,val1:1,val2:2}, function(val1,val2){
+      return ToUint16(val1<<val2);
+    }),
+    new BASIC_COMMAND("AND", /(\w+) AND (\w+) -> (\w+)/, {name:3,val1:1,val2:2}, function(val1,val2){
+      return ToUint16(val1&val2);
+    }),
+    new BASIC_COMMAND("NONE", /^(\w+) -> (\w+)/, {name:2,val1:1}, function(val){
+      return ToUint16(val);
+    })
+  ];
+
   this.addWire = function(name, wire) {
-    console.log("Add wire: "+name+" - "+wire.input.command);
+    this.values = {};
+    console.log("Add wire: "+name+" - "+wire.input.command.name);
     this.wires[name] = wire;
   }
+
   this.getWireValue = function(name) {
-    // console.log("Get WireValue of "+name)
     if (name in this.values) return this.values[name];
-    if (name in this.wires) this.values[name]= this.wires[name].value();
+    if (name in this.wires) this.values[name]= this.wires[name].value(this);
     else this.values[name]= parseInt(name);
     return this.values[name];
   }
+
   this.parse = function(line) {
-    this.values = {};
-    var result = line.match(/^(\w+) -> (\w+)/)
-    if (result) this.addWire(result[2], new Wire(new Input("NONE", result[1], null, this)));
-    result = null;
-
-    result = line.match(/NOT (\w+) -> (\w+)/)
-    if (result) this.addWire(result[2], new Wire(new Input("NOT", result[1], null, this)));
-    result = null;
-
-    result = line.match(/(\w+) AND (\w+) -> (\w+)/)
-    if (result) this.addWire(result[3], new Wire(new Input("AND", result[1], result[2], this)));
-    result = null;
-
-    result = line.match(/(\w+) OR (\w+) -> (\w+)/)
-    if (result) this.addWire(result[3], new Wire(new Input("OR", result[1], result[2], this)));
-    result = null;
-
-    result = line.match(/(\w+) LSHIFT (\w+) -> (\w+)/)
-    if (result) this.addWire(result[3], new Wire(new Input("LSHIFT", result[1], result[2], this)));
-    result = null;
-
-    result = line.match(/(\w+) RSHIFT (\w+) -> (\w+)/)
-    if (result) this.addWire(result[3], new Wire(new Input("RSHIFT", result[1], result[2], this)));
-    result = null;
-  }
-}
-
-function Input(_command, _val1, _val2, wires) {
-  this.command = _command;
-  this.val1 = _val1;
-  this.val2 = _val2;
-  this.calc = function() {
-    switch(this.command) {
-      case "NOT":
-        console.log("NOT: "+this.val1);
-        return ToUint16(~wires.getWireValue(this.val1));
-      break;
-      case "OR":
-        console.log("Return: "+this.val1+" OR "+this.val2);
-        return ToUint16(wires.getWireValue(this.val1)|wires.getWireValue(this.val2));
-      break;
-      case "AND":
-        console.log("Return: "+this.val1+" AND "+this.val2);
-        return ToUint16(wires.getWireValue(this.val1)&wires.getWireValue(this.val2));
-      break;
-      case "LSHIFT":
-        console.log("Return: "+this.val1+" << "+this.val2);
-        return ToUint16(wires.getWireValue(this.val1) << wires.getWireValue(this.val2));
-      break;
-      case "RSHIFT":
-        console.log("Return: "+this.val1+" >> "+this.val2);
-        return ToUint16(wires.getWireValue(this.val1) >> wires.getWireValue(this.val2));
-      break;
-      case "NONE":
-        console.log("Return: "+this.val1);
-        return ToUint16(wires.getWireValue(this.val1));
-      break;
+    for (var i in this.commands) {
+      var result = this.commands[i].parse(line);
+      if (result) {
+        this.addWire(result[0], new Wire(result[1], this));
+        break;
+      }
     }
   }
 }
-function Wire(_input) {
+
+function Input(_command, _val1, _val2) {
+  this.command = _command;
+  this.val1 = _val1;
+  this.val2 = _val2;
+  this.calc = function(wires) {
+    return this.command.do(
+          ToUint16(wires.getWireValue(this.val1)),
+          ToUint16(wires.getWireValue(this.val2))
+    );
+  }
+}
+function Wire(_input, _wires) {
   this.input = _input;
-  this.value = function() {
-    return this.input.calc();
+  this.wires = _wires;
+  this.value = function(wires) {
+    return this.input.calc(this.wires||wires);
   }
 }
 
@@ -124,6 +120,6 @@ function parseText(_input) {
 }
 
 var _circut = parseText();
-setSolution(1, _circut.getWireValue("a"))
+setSolution(1, "3176 ?= "+_circut.getWireValue("a"))
 _circut.parse(""+_circut.getWireValue("a")+" -> b");
-setSolution(2, _circut.getWireValue("a"))
+setSolution(2, "14710 ?= "+_circut.getWireValue("a"))
